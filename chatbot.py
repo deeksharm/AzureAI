@@ -1,3 +1,5 @@
+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
+
 from openai import OpenAI
  
 client = OpenAI(
