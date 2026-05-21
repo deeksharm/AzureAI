@@ -1,0 +1,599 @@
+https://github.com/deeksharm/AzureAI/tree/main/BuildAIApp/Day4
+red team = https://learn.microsoft.com/en-us/azure/foundry/how-to/develop/run-ai-red-teaming-cloud?view=foundry&tabs=python
+=======================================================
+Foundry = Day4AI2
+model - gpt-image
+create folder imagegenration in vdi & launch vs code
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+create venv = python -m venv .venv
+Activate Environment = .venv\Scripts\Activate.ps1
+Install Packages = pip install openai python-dotenv pillow moviepy imageio imageio-ffmpeg
+Configure .env file =
+				AZURE_OPENAI_API_KEY=YOUR_API_KEY
+				AZURE_OPENAI_ENDPOINT=https://YOUR_RESOURCE.services.ai.azure.com/
+				AZURE_OPENAI_DEPLOYMENT=gpt-image
+
+Create main.py
+
+from openai import AzureOpenAI
+from dotenv import load_dotenv
+from moviepy import ImageSequenceClip
+import base64
+import os
+
+# -----------------------------------
+# LOAD ENV VARIABLES
+# -----------------------------------
+
+load_dotenv()
+
+# -----------------------------------
+# AZURE OPENAI CLIENT
+# -----------------------------------
+
+client = AzureOpenAI(
+
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+
+    api_version="2024-02-15-preview",
+
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
+)
+
+deployment_name = os.getenv(
+    "AZURE_OPENAI_DEPLOYMENT"
+)
+
+# -----------------------------------
+# USER PROMPT
+# -----------------------------------
+
+user_prompt = input(
+    "Enter video prompt: "
+)
+
+# -----------------------------------
+# VIDEO SCENE PROMPTS
+# -----------------------------------
+
+scene_prompts = [
+
+    f"{user_prompt}, cinematic wide shot",
+
+    f"{user_prompt}, aerial cinematic view",
+
+    f"{user_prompt}, dramatic lighting",
+
+    f"{user_prompt}, futuristic cinematic scene"
+]
+
+# -----------------------------------
+# GENERATE FRAMES
+# -----------------------------------
+
+image_files = []
+
+for i, prompt in enumerate(scene_prompts):
+
+    print(f"Generating frame {i+1}...")
+
+    result = client.images.generate(
+
+        model=deployment_name,
+
+        prompt=prompt,
+
+       size="1024x1024"
+    )
+
+    image_base64 = result.data[0].b64_json
+
+    image_bytes = base64.b64decode(
+        image_base64
+    )
+
+    file_name = f"frame_{i+1}.png"
+
+    with open(file_name, "wb") as f:
+
+        f.write(image_bytes)
+
+    image_files.append(file_name)
+
+# -----------------------------------
+# CREATE VIDEO
+# -----------------------------------
+
+print("Creating video...")
+
+clip = ImageSequenceClip(
+
+    image_files,
+
+    fps=1
+)
+
+clip.write_videofile(
+
+    "output.mp4",
+
+    codec="libx264"
+)
+
+print("Video created successfully!")
+
+
+Run Application :python main.py
+
+Enter Prompt : A dragon flying above snowy mountains
+
+
+Example Prompts
+A futuristic Mumbai skyline during sunset
+Cyberpunk Tokyo during heavy rain
+A dragon flying above snowy mountains
+
+
+
+
+
+
+
+
+
+
+
+
+
+==========================================================
+Prompt:
+What documents are required for loan approval?
+What are fraud detection rules?
+What are KYC compliance requirements?
+
+@Everyone Please only Copy
+======================================21/5/2026==============================================================
+Deploy model under foundry
+				gpt-4o-mini  ---> Langgraph , security  Agent
+				text-embedding-3-small
+LangGraph ->  python framework --> building multistep ai agent workflow
+
+use existing storage : day4newstorage -> data -> all 4 file there (Credit Card Policy.txt, Fraud Policy.txt, Leave Policy Document.txt, Loan Policy.txt)
+use existing Azure AI search : day4trainingaisearch  
+			Endpoint = https://day4trainingaisearch.search.windows.net
+			Keys = 6DQEWFCNrzLlTaWCoR7Vj5jxgZqvRmj2UniKzfhNCYAzSeDjxni1
+ 			RAG = <yourname>-RAG-<numeric>
+
+create folder Day4 in vdi & launch vs code
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+create venv = python -m venv .venv
+Activate Environment = .venv\Scripts\Activate.ps1
+Install Packages = pip install fastapi uvicorn langgraph langchain openai azure-search-documents python-dotenv python-multipart
+Create these files inside project Day 4 folder:
+			main.py
+			workflow.py
+			.env
+
+
+Add .env File
+
+AZURE_OPENAI_API_KEY=your_openai_key
+AZURE_OPENAI_ENDPOINT=https://your-openai-endpoint.openai.azure.com/
+AZURE_OPENAI_DEPLOYMENT=gpt-4o-mini
+AZURE_SEARCH_ENDPOINT=https://your-search-name.search.windows.net
+AZURE_SEARCH_KEY=your_search_admin_key
+AZURE_SEARCH_INDEX=rag-xxxxxxxx
+
+
+
+gpt-image2  --> use for image genrate
+======================================20/5/2026===============================================================
+Deploy model under foundry
+			text-embedding-3-small
+			gpt-4o-mini
+
+create azure ai search -> https://portal.azure.com/#view/Microsoft_Azure_ProjectOxford/CognitiveServicesHub/~/CognitiveSearch
+Create a Blob storage
+create container in blob storage -> data
+upload all 3 files in container
+HR Policy.txt
+Travel Policy.txt
+IT Security Policy.txt
+Create files:
+HR Policy.txt
+
+Employees receive 20 annual leaves.
+Work from home is allowed 3 days per week.
+VPN access is mandatory for remote work.
+Employees must complete cybersecurity training every quarter.
+
+Travel Policy.txt
+
+International travel requires manager approval.
+Flights under 6 hours must use economy class.
+Hotel reimbursement limit is $180 per night.
+Receipts are mandatory for reimbursements.
+
+IT Security Policy.txt
+
+Employees must use company-approved laptops.
+Multi-factor authentication is mandatory.
+USB devices are restricted.
+Passwords must be changed every 90 days.
+
+Vectorize Text in Azure AI search : Kind Microsoft Foundry
+create folder Day3 in vdi & launch vs code
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+create venv = python -m venv .venv
+Activate Environment = .venv\Scripts\Activate.ps1
+Install Packages = pip install fastapi uvicorn openai python-dotenv azure-search-documents azure-core python-multipart
+
+Create .env
+
+AZURE_OPENAI_API_KEY=YOUR_KEY
+AZURE_OPENAI_ENDPOINT=https://multimodel-image-classi-resource.openai.azure.com/
+AZURE_OPENAI_DEPLOYMENT=gpt-4o-mini
+AZURE_SEARCH_ENDPOINT=https://enterprise-rag-search1.search.windows.net
+AZURE_SEARCH_KEY=YOUR_SEARCH_KEY
+AZURE_SEARCH_INDEX=rag-1778669081372
+
+Create main.py
+
+from fastapi import FastAPI, Form
+from fastapi.responses import HTMLResponse
+from openai import AzureOpenAI
+from azure.core.credentials import AzureKeyCredential
+from azure.search.documents import SearchClient
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+# -----------------------------
+# ENV VARIABLES
+# -----------------------------
+
+AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT")
+
+AZURE_SEARCH_ENDPOINT = os.getenv("AZURE_SEARCH_ENDPOINT")
+AZURE_SEARCH_KEY = os.getenv("AZURE_SEARCH_KEY")
+AZURE_SEARCH_INDEX = os.getenv("AZURE_SEARCH_INDEX")
+
+# -----------------------------
+# FASTAPI
+# -----------------------------
+
+app = FastAPI()
+
+# -----------------------------
+# AZURE OPENAI CLIENT
+# -----------------------------
+
+client = AzureOpenAI(
+    api_key=AZURE_OPENAI_API_KEY,
+    azure_endpoint=AZURE_OPENAI_ENDPOINT,
+    api_version="2024-02-15-preview"
+)
+
+deployment = AZURE_OPENAI_DEPLOYMENT
+
+# -----------------------------
+# AZURE AI SEARCH CLIENT
+# -----------------------------
+
+search_client = SearchClient(
+    endpoint=AZURE_SEARCH_ENDPOINT,
+    index_name=AZURE_SEARCH_INDEX,
+    credential=AzureKeyCredential(AZURE_SEARCH_KEY)
+)
+
+# -----------------------------
+# HOME PAGE
+# -----------------------------
+
+@app.get("/", response_class=HTMLResponse)
+async def home():
+
+    return """
+    <html>
+    <body style="font-family: Arial; padding: 20px;">
+
+    <h2>Enterprise RAG Assistant</h2>
+
+    <form action="/chat" method="post">
+
+    <textarea name="message" rows="6" cols="60"></textarea>
+
+    <br><br>
+
+    <button type="submit">Ask</button>
+
+    </form>
+
+    </body>
+    </html>
+    """
+
+# -----------------------------
+# CHAT ROUTE
+# -----------------------------
+
+@app.post("/chat", response_class=HTMLResponse)
+async def chat(message: str = Form(...)):
+
+    results = search_client.search(message)
+
+    context = ""
+
+    for result in results:
+        context += str(result) + "\n"
+
+    prompt = f"""
+    Use ONLY the following enterprise knowledge:
+
+    {context}
+
+    Answer this question:
+
+    {message}
+    """
+
+    completion = client.chat.completions.create(
+        model=deployment,
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+
+    answer = completion.choices[0].message.content
+
+    return f"""
+    <html>
+    <body style="font-family: Arial; padding: 20px;">
+
+    <h2>Grounded AI Response</h2>
+
+    <div style="white-space: pre-wrap; line-height: 1.6;">
+    {answer}
+    </div>
+
+    <br><br>
+
+    <a href="/">Go Back</a>
+
+    </body>
+    </html>
+    """
+Start Server := uvicorn main:app --reload
+
+===============================================================================================================
+prompt for IT Support agent:
+
+You are an IT Support Agent for Contoso Corporation. You help employees with technical issues and IT policy questions.      Guidelines: 
+- Always be professional and helpful - Use the IT policy documentation to answer questions accurately 
+- If you don't know the answer, admit it and suggest contacting IT support directly
+- When creating tickets, collect all necessary information before proceeding
+
+once done dowload policy file:
+
+file search ->  https://raw.githubusercontent.com/MicrosoftLearning/mslearn-ai-agents/main/Labfiles/01-build-agent-portal-and-vscode/IT_Policy.txt
+code interpreter : => https://raw.githubusercontent.com/MicrosoftLearning/mslearn-ai-agents/main/Labfiles/01-build-agent-portal-and-vscode/system_performance.csv
+
+prompt:
+What's the policy for password resets?
+how do i request new software?
+can you analyze the system performance data and tell me if there are any concerning trends?
+Create a chart showing CPU usage over time from the performance data
+
+==========================================19/5/2026================================================
+
+
+download postgress : https://www.postgresql.org/download/
+create db in postgress sql
+skip stack builder
+install python -> open windows powershell -> winget install Python.Python.3.12
+or https://realpython.com/installing-python/#step-1-download-the-traditional-python-installer
+restart powershell & check version
+python --version
+pip --version 
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+create venv = python -m venv .venv
+Activate Environment = .venv\Scripts\Activate.ps1
+Install Packages = pip install fastapi uvicorn sqlalchemy psycopg2-binary python-dotenv openai python-multipart
+
+Create Project  Files
+.env
+main.py
+database.py
+models.py
+
+Configure .env
+Add Environment Variables
+AZURE_OPENAI_API_KEY=YOUR_KEY
+ 
+ AZURE_OPENAI_ENDPOINT=https://YOUR_RESOURCE.services.ai.azure.com/openai/v1
+ 
+ AZURE_OPENAI_DEPLOYMENT=gpt-4o-mini
+ 
+ DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost/enterprise_chat_db
+
+Create database.py
+Code
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
+import os
+ 
+load_dotenv()
+ 
+DATABASE_URL = os.getenv("DATABASE_URL")
+ 
+engine = create_engine(DATABASE_URL)
+ 
+SessionLocal = sessionmaker(
+     autocommit=False,
+     autoflush=False,
+     bind=engine
+ )
+ 
+Base = declarative_base()
+
+
+Create models.py
+Code
+from sqlalchemy import Column, Integer, Text
+ from database import Base
+ 
+ class ChatHistory(Base):
+ 
+     __tablename__ = "chat_history"
+ 
+     id = Column(Integer, primary_key=True, index=True)
+ 
+     user_message = Column(Text)
+ 
+     ai_response = Column(Text)
+
+
+
+
+Create main.py : https://github.com/deeksharm/AzureAI/edit/main/BuildAIApp/day2/main.py
+Updated main.py
+
+from fastapi import FastAPI, Form
+ from fastapi.responses import HTMLResponse
+ from openai import OpenAI
+ from dotenv import load_dotenv
+ from database import engine, SessionLocal
+ from models import Base, ChatHistory
+ import os
+ 
+ load_dotenv()
+ 
+ Base.metadata.create_all(bind=engine)
+ 
+ client = OpenAI(
+     base_url=os.getenv("AZURE_OPENAI_ENDPOINT"),
+ api_key=os.getenv("AZURE_OPENAI_API_KEY")
+ )
+ 
+ deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT")
+ 
+ app = FastAPI()
+ 
+ @app.get("/", response_class=HTMLResponse)
+ async def home():
+ 
+     return '''
+     <html>
+ 
+     <head>
+ 
+         <title>Enterprise AI Chat</title>
+ 
+     </head>
+ 
+     <body style="font-family: Arial; padding: 30px;">
+ 
+         <h2>Enterprise AI Chat Application</h2>
+ 
+         <form action="/chat" method="post">
+ 
+             <textarea
+                 name="message"
+                 rows="8"
+                 cols="80"
+                 placeholder="Enter your prompt here..."
+             ></textarea>
+ 
+             <br><br>
+ 
+             <button type="submit">
+                 Send
+             </button>
+ 
+         </form>
+ 
+     </body>
+ 
+     </html>
+     '''
+ 
+ @app.post("/chat", response_class=HTMLResponse)
+ async def chat(message: str = Form(...)):
+ 
+     completion = client.chat.completions.create(
+         model=deployment,
+         messages=[
+             {
+                 "role": "user",
+                 "content": message
+             }
+         ]
+     )
+ 
+     ai_response = completion.choices[0].message.content
+ 
+     db = SessionLocal()
+ 
+     chat_record = ChatHistory(
+         user_message=message,
+         ai_response=ai_response
+     )
+ 
+     db.add(chat_record)
+ 
+     db.commit()
+ 
+     db.close()
+ 
+     return f'''
+     <html>
+ 
+     <head>
+ 
+         <title>AI Response</title>
+ 
+     </head>
+ 
+     <body style="font-family: Arial; padding: 30px;">
+ 
+         <h2>AI Response</h2>
+ 
+         <hr>
+ 
+         <pre style="
+             white-space: pre-wrap;
+             font-size: 16px;
+             line-height: 1.6;
+         ">
+ {ai_response}
+         </pre>
+ 
+         <br>
+ 
+         <a href="/">
+             Go Back
+         </a>
+ 
+     </body>
+ 
+     </html>
+     '''
+
+-----------------------------------------------------------
+Start Server := uvicorn main:app --reload
+
+prompt = Explain enterprise AI governance best practices.
+
+
+
+
+
+
+
